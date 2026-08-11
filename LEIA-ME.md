@@ -28,15 +28,20 @@ dados/chave.txt      → você cria, com a chave do painel dentro
 
 ---
 
-## 2. Criar a chave do painel (obrigatório)
+## 2. Criar as credenciais do painel (obrigatório)
 
-Este repositório é **público**, então a chave não pode ficar no código. Depois do deploy:
+Este repositório é **público**, então nenhuma senha pode ficar no código. Depois do deploy, crie na pasta `dados/` (pelo Gerenciador de Arquivos):
 
-1. hPanel > Gerenciador de Arquivos > `public_html/pesquisa/dados/`
-2. Crie um arquivo chamado `chave.txt`
-3. Escreva dentro dele só a chave: algo longo e sem sentido, no mínimo 20 caracteres (ex.: 40 letras e números aleatórios)
+**`dados/login.txt`** — abre o painel pelo botão "acesso restrito" do rodapé:
 
-Sem esse arquivo o painel simplesmente não abre para ninguém — o formulário continua funcionando normal.
+```
+linha 1: o usuário (e-mail)
+linha 2: a senha
+```
+
+**`dados/chave.txt`** (opcional) — atalho direto pela URL `?admin=CHAVE`, sem tela de login. Dentro, só a chave: mínimo 20 caracteres, sem sentido.
+
+Sem esses arquivos o painel não abre para ninguém — o formulário continua funcionando normal.
 
 ---
 

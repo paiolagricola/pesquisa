@@ -79,6 +79,16 @@ textarea::placeholder{color:#c9c8c3}
 .back:hover,.skip:hover{color:var(--green)}
 .skip{text-decoration:underline;text-underline-offset:3px}
 
+/* login */
+.login{padding-top:14vh;max-width:400px}
+.login h2{font-size:25px;font-weight:400;margin-bottom:6px;color:var(--green)}
+.login>p{font-size:13.5px;color:var(--mute);margin-bottom:10px}
+.login label{display:block;font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);font-weight:500;margin:24px 0 2px}
+.login input{width:100%;border:none;border-bottom:1px solid var(--line);background:none;
+  font-family:inherit;font-size:16px;padding:8px 0;color:var(--ink);border-radius:0}
+.login input:focus{outline:none;border-color:var(--green)}
+.login .err{color:var(--red);font-size:13.5px;margin-top:18px;min-height:21px}
+
 .done{padding-top:18vh}
 .done h2{font-size:25px;font-weight:400;margin-bottom:14px;color:var(--green)}
 .done p{color:#5b5a56;font-size:15.5px;margin-bottom:10px}
@@ -246,13 +256,14 @@ let R=DEMO.map(x=>({...x,_d:1}));
 let view='cover',idx=0,cur={},enviado=false,carregando=false;
 const app=document.getElementById('app');
 const cab=(right='')=>`<div class="goldline"></div><div class="top"><div class="mark">PAIOL <span>CSC</span></div><div class="count">${right}</div></div>`;
-const foot=(l='Pesquisa anônima')=>`<div class="foot"><span>${l}</span></div>`;
+const foot=(l='Pesquisa anônima')=>`<div class="foot"><span>${l}</span><button onclick="loginView()">acesso restrito</button></div>`;
 
 function render(){
  if(carregando){app.innerHTML=cab()+`<main><div class="done"><h2>Carregando respostas…</h2><p>Buscando os dados da planilha.</p></div></main>`+foot();return;}
  if(view==='cover')return cover();
  if(view==='q')return pergunta();
  if(view==='done')return fim();
+ if(view==='login')return loginRender();
  if(view==='panel')return painelView();
 }
 
@@ -318,6 +329,41 @@ function enviar(dados){
   fetch(ENVIAR_URL,{method:'POST',headers:{'Content-Type':'application/json'},
    body:JSON.stringify(dados)}).catch(function(){});
  }catch(e){}
+}
+function loginView(){view='login';render();scrollTo(0,0);}
+function loginRender(){
+ app.innerHTML=cab()+`<main><div class="login">
+ <h2>Acesso restrito</h2>
+ <p>Área da gestão. Pra responder a pesquisa não precisa de login — é só voltar.</p>
+ <label for="lu">Usuário</label>
+ <input id="lu" type="email" autocomplete="username" spellcheck="false">
+ <label for="lp">Senha</label>
+ <input id="lp" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')entrar()">
+ <div class="err" id="lerr"></div>
+ <div class="nav">
+  <button class="go" onclick="entrar()">Entrar</button>
+  <button class="back" onclick="reset()">voltar</button>
+ </div>
+ </div></main>`+foot();
+}
+function entrar(){
+ const u=document.getElementById('lu').value.trim();
+ const p=document.getElementById('lp').value;
+ const err=document.getElementById('lerr');
+ if(!u||!p){err.textContent='Preencha usuário e senha.';return;}
+ err.textContent='';
+ carregando=true;render();
+ fetch(DADOS_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({u:u,p:p})})
+  .then(r=>{if(!r.ok)throw 0;return r.json();})
+  .then(d=>{
+   if(d&&d.rows&&d.rows.length)R=d.rows.map(x=>({...x,_d:0}));
+   carregando=false;view='panel';render();scrollTo(0,0);
+  })
+  .catch(()=>{
+   carregando=false;view='login';render();
+   const e=document.getElementById('lerr');
+   if(e)e.textContent='Usuário ou senha incorretos.';
+  });
 }
 function painel(){
  const k=new URLSearchParams(location.search).get('admin');
