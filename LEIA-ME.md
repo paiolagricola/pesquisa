@@ -6,34 +6,39 @@
 index.html      → a pesquisa e o painel
 salvar.php      → recebe cada resposta
 dados.php       → devolve as respostas pro painel (protegido por chave)
-dados/.htaccess → bloqueia leitura direta do arquivo de respostas
+dados/.htaccess → bloqueia leitura direta dos arquivos da pasta dados/
 ```
 
-O arquivo `dados/respostas.json` é criado sozinho no primeiro envio.
+Criados direto no servidor (nunca ficam no Git):
+
+```
+dados/respostas.json → criado sozinho no primeiro envio
+dados/chave.txt      → você cria, com a chave do painel dentro
+```
 
 ---
 
-## 1. Antes de subir
+## 1. Subir
 
-Abra `dados.php` e troque a chave da primeira linha:
+**Pelo GitHub (este repositório):** no hPanel, em **Sites > Gerenciar > Avançado > GIT**, aponte o deploy para este repositório e esta branch, com diretório de instalação `public_html/pesquisa`. A Hostinger sincroniza a cada push.
 
-```php
-$CHAVE = 'troque-isto-por-algo-longo-2026';
-```
+> Atenção: se a Hostinger fizer deploy limpo a cada push, ela pode apagar `dados/respostas.json`. Ele já está no `.gitignore`, mas por garantia **não faça deploy durante o período da pesquisa.**
 
-Por algo longo e sem sentido. É ela que abre o painel.
+**Sem GitHub:** hPanel > Gerenciador de Arquivos > `public_html/pesquisa/`, e arraste os arquivos. Não tem risco de deploy sobrescrever resposta.
 
 ---
 
-## 2. Subir
+## 2. Criar a chave do painel (obrigatório)
 
-**Pelo GitHub:** commit dos 4 arquivos + a pasta `dados/` num repositório, e no hPanel aponte o deploy Git pra ele. A Hostinger sincroniza a cada push.
+Este repositório é **público**, então a chave não pode ficar no código. Depois do deploy:
 
-> Atenção: se a Hostinger fizer deploy limpo a cada push, ela pode apagar `dados/respostas.json`. Adicione `dados/respostas.json` ao `.gitignore` e **não faça deploy durante o período da pesquisa.**
+1. hPanel > Gerenciador de Arquivos > `public_html/pesquisa/dados/`
+2. Crie um arquivo chamado `chave.txt`
+3. Escreva dentro dele só a chave: algo longo e sem sentido, no mínimo 20 caracteres (ex.: 40 letras e números aleatórios)
 
-**Sem GitHub (mais seguro nesse caso):** hPanel > Gerenciador de Arquivos > `public_html`, e arraste os arquivos. Não tem risco de deploy sobrescrever resposta.
+Sem esse arquivo o painel simplesmente não abre para ninguém — o formulário continua funcionando normal.
 
-Recomendo subir numa subpasta, tipo `public_html/pesquisa/`, pra não mexer no site principal.
+---
 
 ---
 

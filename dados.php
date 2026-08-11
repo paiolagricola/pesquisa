@@ -1,14 +1,16 @@
 <?php
 /**
  * Devolve as respostas para o painel. Protegido por chave.
- * TROQUE A CHAVE ABAIXO antes de publicar.
+ * A chave fica em dados/chave.txt, criado direto no servidor
+ * (nunca no Git — o repositório é público).
  */
-$CHAVE = 'mruk9pff6sfj6qx1biul7s2w9vmksoihe7uq9b8e';
-
 header('Content-Type: application/json; charset=utf-8');
 
+$arqChave = __DIR__ . '/dados/chave.txt';
+$CHAVE = is_file($arqChave) ? trim(file_get_contents($arqChave)) : '';
+
 $k = isset($_GET['k']) ? $_GET['k'] : '';
-if (!hash_equals($CHAVE, $k)) {
+if ($CHAVE === '' || strlen($CHAVE) < 20 || !hash_equals($CHAVE, $k)) {
     http_response_code(403);
     echo '{"erro":"chave invalida"}';
     exit;
