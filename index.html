@@ -246,7 +246,7 @@ let R=DEMO.map(x=>({...x,_d:1}));
 let view='cover',idx=0,cur={},enviado=false,carregando=false;
 const app=document.getElementById('app');
 const cab=(right='')=>`<div class="goldline"></div><div class="top"><div class="mark">PAIOL <span>CSC</span></div><div class="count">${right}</div></div>`;
-const foot=(l='Pesquisa anônima')=>`<div class="foot"><span>${l}</span><button onclick="painel()">painel de resultados</button></div>`;
+const foot=(l='Pesquisa anônima')=>`<div class="foot"><span>${l}</span></div>`;
 
 function render(){
  if(carregando){app.innerHTML=cab()+`<main><div class="done"><h2>Carregando respostas…</h2><p>Buscando os dados da planilha.</p></div></main>`+foot();return;}
@@ -260,8 +260,8 @@ function cover(){
  app.innerHTML=cab()+`<main><div class="cover">
  <div class="eyebrow">CSC · Paiol Comercial Agrícola</div>
  <h1>Hora de <b>avaliar</b>.</h1>
- <p>Participei de um diagnóstico de liderança e respondi tudo sozinho. Serve pouco — quem convive com o dia a dia são vocês.</p>
- <p>Então virei as perguntas. Agora é a sua vez de responder.</p>
+ <p>Preenchi essa pesquisa recentemente, mas vejo que é importante ouvir cada uma de vocês.</p>
+ <p>Por isso reformulei a pesquisa para que vocês possam responder.</p>
  <div class="meta">
   <span><b>Anônima.</b> Não coleta e-mail, área, cargo nem tempo de casa.</span>
   <span><b>23 perguntas</b>, cerca de 8 minutos. Pode responder no expediente.</span>
@@ -299,7 +299,6 @@ function fim(){
  <h2>Recebido.</h2>
  <p>Sua resposta entrou no consolidado sem nenhuma marca de identificação.</p>
  <p>A devolutiva acontece em até 15 dias, com o time todo na sala.</p>
- <div class="nav"><button class="go" onclick="painel()">Ver painel</button></div>
  </div></main>`+foot();
 }
 
@@ -466,7 +465,7 @@ function painelView(){
   <div class="row-m"><span>${nps.filter(v=>v<=6).length} de ${nps.length} deram 6 ou menos</span></div></div>
  </div></main>`+foot('Modo teste');
 }
-render();
+if(new URLSearchParams(location.search).get('admin')){painel();}else{render();}
 </script>
 </body>
 </html>
