@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hora de avaliar — CSC Paiol</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --green:#046023;
+  --green-soft:#eaf2ec;
+  --gold:#ECC23C;
+  --gold-soft:#fdf6e0;
+  --ink:#373435;
+  --paper:#FBFBFA;
+  --line:#E4E4E1;
+  --mute:#96958F;
+  --red:#A83A2C;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Ubuntu','Segoe UI',Arial,sans-serif;background:var(--paper);color:var(--ink);
+  line-height:1.55;-webkit-font-smoothing:antialiased}
+#app{min-height:100vh;display:flex;flex-direction:column}
+main{flex:1;width:100%;max-width:560px;margin:0 auto;padding:0 28px 64px}
+
+.goldline{height:3px;background:var(--gold)}
+.top{max-width:560px;margin:0 auto;padding:24px 28px 0;width:100%;display:flex;justify-content:space-between;align-items:baseline}
+.mark{font-size:12px;letter-spacing:4px;font-weight:700;color:var(--green)}
+.mark span{color:var(--mute);font-weight:400;letter-spacing:1px}
+.count{font-size:12px;color:var(--mute);font-variant-numeric:tabular-nums}
+
+.rule{max-width:560px;margin:14px auto 0;padding:0 28px;width:100%}
+.rule div{height:2px;background:var(--line);border-radius:99px;position:relative}
+.rule div i{position:absolute;left:0;top:0;height:2px;background:var(--green);border-radius:99px;transition:width .3s}
+
+/* capa */
+.cover{padding-top:12vh}
+.cover .eyebrow{font-size:10.5px;letter-spacing:2.6px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:14px}
+.cover h1{font-size:31px;font-weight:400;line-height:1.24;letter-spacing:-.4px;margin-bottom:24px}
+.cover h1 b{font-weight:700;color:var(--green)}
+.cover p{margin-bottom:14px;color:#5b5a56;font-size:15.5px}
+.meta{margin-top:32px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:13.5px;color:#6b6a66;display:flex;flex-direction:column;gap:7px}
+.meta b{font-weight:500;color:var(--green)}
+
+/* pergunta */
+.q{padding-top:46px}
+.q .n{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);font-weight:500;margin-bottom:14px}
+.q h2{font-size:21px;font-weight:400;line-height:1.4;letter-spacing:-.2px}
+.q .hint{font-size:13.5px;color:var(--mute);margin-top:10px}
+.opts{margin-top:32px;border-top:1px solid var(--line)}
+.opt{display:flex;align-items:center;gap:16px;width:100%;padding:15px 2px;background:none;border:none;
+  border-bottom:1px solid var(--line);font-family:inherit;font-size:16px;color:var(--ink);
+  text-align:left;cursor:pointer;transition:.15s}
+.opt:hover{padding-left:8px;color:var(--green)}
+.opt em{font-style:normal;color:var(--mute);font-size:13px;min-width:12px;font-variant-numeric:tabular-nums}
+.opt.sel{color:var(--green);font-weight:500}
+.opt.sel em{color:var(--green)}
+.opt.sel::after{content:'';width:6px;height:6px;border-radius:99px;background:var(--gold);margin-left:auto}
+.opt.na{color:var(--mute);font-size:14.5px}
+textarea{width:100%;margin-top:24px;min-height:140px;padding:0;border:none;border-bottom:1px solid var(--line);
+  background:none;resize:none;font-family:inherit;font-size:17px;line-height:1.6;color:var(--ink)}
+textarea:focus{outline:none;border-color:var(--green)}
+textarea::placeholder{color:#c9c8c3}
+.nps{display:flex;flex-wrap:wrap;margin-top:28px;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.nps button{flex:1 0 18.18%;aspect-ratio:1.5;background:none;border:none;border-right:1px solid var(--line);
+  border-bottom:1px solid var(--line);font-family:inherit;font-size:16px;color:var(--ink);cursor:pointer;transition:.15s}
+.nps button:hover{background:var(--green-soft)}
+.nps button.sel{background:var(--green);color:#fff}
+.legend{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-top:10px}
+.nav{margin-top:36px;display:flex;align-items:center;gap:22px}
+.go{font-family:inherit;font-size:15px;font-weight:500;color:#fff;background:var(--green);border:none;
+  border-radius:4px;padding:12px 26px;cursor:pointer;transition:.15s}
+.go:hover{background:#034a1b}
+.go:disabled{background:var(--line);color:#b5b4b0;cursor:default}
+.back,.skip{font-family:inherit;font-size:13.5px;color:var(--mute);background:none;border:none;cursor:pointer;padding:0}
+.back:hover,.skip:hover{color:var(--green)}
+.skip{text-decoration:underline;text-underline-offset:3px}
+
+.done{padding-top:18vh}
+.done h2{font-size:25px;font-weight:400;margin-bottom:14px;color:var(--green)}
+.done p{color:#5b5a56;font-size:15.5px;margin-bottom:10px}
+
+/* painel */
+.panel{padding-top:40px}
+.panel h2{font-size:25px;font-weight:400;letter-spacing:-.3px}
+.panel .sub{font-size:13px;color:var(--mute);margin-top:4px}
+.nums{display:flex;gap:40px;margin:30px 0 6px}
+.nums div b{display:block;font-size:33px;font-weight:300;line-height:1;font-variant-numeric:tabular-nums;color:var(--green)}
+.nums div span{font-size:11.5px;color:var(--mute)}
+.note{font-size:12.5px;color:var(--mute);margin-top:20px;padding-top:14px;border-top:1px solid var(--line);line-height:1.7}
+.note button{font-family:inherit;font-size:12.5px;color:var(--green);background:none;border:none;
+  border-bottom:1px solid var(--line);cursor:pointer;padding:0 0 2px;margin-right:16px}
+h3.sec{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mute);font-weight:500;
+  margin:42px 0 4px;padding-bottom:11px;border-bottom:1px solid var(--green)}
+
+.radar{margin:22px 0 4px;display:block;width:100%;height:auto}
+.radar-key{display:flex;gap:20px;font-size:12px;color:var(--mute);justify-content:center;margin-bottom:6px}
+.radar-key i{display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px}
+
+.hero{background:var(--green);color:#fff;border-radius:6px;padding:24px 22px;margin:24px 0 8px}
+.hero .lbl{font-size:10.5px;letter-spacing:2.4px;text-transform:uppercase;color:var(--gold);font-weight:500}
+.hero h4{font-size:22px;font-weight:400;margin:10px 0 4px;letter-spacing:-.2px}
+.hero .frase{font-style:italic;font-size:14px;color:rgba(255,255,255,.72);margin-bottom:16px}
+.hero p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.94)}
+.hero .score{font-size:12px;color:var(--gold);margin-top:16px;letter-spacing:.5px}
+
+.pd{padding:15px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px}
+.pd .cod{font-size:11px;color:var(--mute);min-width:18px}
+.pd .nm{flex:1;font-size:14.5px}
+.pd .nm small{display:block;color:var(--mute);font-size:11.5px;font-style:italic}
+.pd .bar{width:74px;height:4px;background:var(--line);border-radius:99px;overflow:hidden}
+.pd .bar i{display:block;height:4px;background:var(--green);border-radius:99px}
+.pd .bar i.low{background:var(--red)}
+.pd .v{font-size:17px;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
+.pd .v.low{color:var(--red)}
+
+.row{padding:15px 0;border-bottom:1px solid var(--line)}
+.row-top{display:flex;gap:16px;align-items:baseline}
+.row-i{font-size:11.5px;color:var(--mute);min-width:18px;font-variant-numeric:tabular-nums}
+.row-t{flex:1;font-size:14px;line-height:1.45}
+.row-v{font-size:18px;font-variant-numeric:tabular-nums;min-width:32px;text-align:right;color:var(--green)}
+.row-v.low{color:var(--red)}
+.dist{display:flex;height:3px;margin:11px 0 0 34px;gap:1px;border-radius:99px;overflow:hidden}
+.dist i{display:block;height:3px}
+.row-m{margin:9px 0 0 34px;font-size:11.5px;color:var(--mute);display:flex;gap:16px;flex-wrap:wrap}
+
+.flag{font-size:14px;line-height:1.6;padding:15px 0 15px 14px;border-bottom:1px solid var(--line);
+  border-left:2px solid var(--gold);color:#5b5a56;background:var(--gold-soft);
+  padding-right:14px;margin-bottom:1px}
+.flag.red{border-left-color:var(--red);background:#fbf0ee}
+.flag b{display:block;font-weight:500;color:var(--ink);margin-bottom:2px}
+.quote{font-size:15px;line-height:1.6;padding:15px 0 15px 16px;border-bottom:1px solid var(--line);
+  border-left:2px solid var(--green-soft);color:#4a4945}
+h4.open{font-size:14px;font-weight:500;margin:34px 0 2px;color:var(--green)}
+.foot{max-width:560px;margin:0 auto;padding:22px 28px 32px;width:100%;border-top:1px solid var(--line);
+  font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.foot button{font-family:inherit;font-size:12px;color:var(--mute);background:none;border:none;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;padding:0}
+.foot button:hover{color:var(--green)}
+@media(min-width:600px){.cover h1{font-size:37px}.q h2{font-size:24px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+/* ============================================================
+   Backend próprio (PHP na Hostinger) — mesma pasta do index.html
+   ============================================================ */
+const ENVIAR_URL='salvar.php';
+const DADOS_URL='dados.php';
+/* Painel: abra a URL com ?admin=SUA_CHAVE no fim */
+
+/* ---------- paradoxos ---------- */
+const PARA=[
+ {c:'P1',n:'Cobrar vs. Cuidar',f:'Liderar só para resultados não é liderar',itens:[1,2],
+  diag:'O time sente a cobrança e não sente o cuidado. Resultado que veio com desgaste está sendo comemorado sem ninguém tratar o custo do caminho — e esse custo volta como rotatividade ou entrega morna no trimestre seguinte.',
+  ok:'O time percebe que você olha o resultado e a pessoa. Isso é o que segura equipe em fechamento pesado.'},
+ {c:'P2',n:'Quantidade vs. Qualidade',f:'Liderar não é atolar o time',itens:[3,4],
+  diag:'A reunião virou lista e a resposta vem pronta. O time executa mas não constrói critério próprio — o que te obriga a decidir tudo de novo na semana seguinte. Você não tem gargalo de gente, tem gargalo de você.',
+  ok:'O time chega em resposta sozinho e a reunião sobra tempo pra pensar. É isso que te libera.'},
+ {c:'P3',n:'Certeza vs. Clareza',f:'Liderar é vender esperança e matar o medo',itens:[5,6],
+  diag:'Falta contexto. Ou chega uma certeza que você não tem, ou chega silêncio. Sem saber o que é fato e o que é aposta, o time trava na dúvida e te procura pra tudo.',
+  ok:'O time sabe o que é fato, o que é aposta e pra onde a empresa vai. Dá pra decidir sem você na sala.'},
+ {c:'P4',n:'Energizar vs. Drenar',f:'Liderar é identificar os sugadores de energia',itens:[7,8],
+  diag:'A agenda do time não pertence ao time. Interrupção e pedido fora do horário viraram rotina, e capacidade está sendo consumida num lugar que nenhum indicador seu mede. É o item que mais destrói time de retaguarda.',
+  ok:'Existe espaço protegido pra trabalho de foco e os limites são respeitados. Raro em CSC.'},
+ {c:'P5',n:'Estabilidade vs. Agilidade',f:'Liderar é equilibrar estabilidade com agilidade',itens:[9,10],
+  diag:'Muda o rumo e não muda a explicação. O time se adapta sem entender o porquê, e a prioridade real vira adivinhação. Processo demais trava, processo de menos cansa — hoje o desenho não está dando segurança nem velocidade.',
+  ok:'Muda o rumo e o time entende o porquê. Processo dá base sem engessar.'},
+ {c:'P6',n:'Olhar pra dentro vs. pra fora',f:'Liderar é construir times que olhem para fora',itens:[11,12],
+  diag:'O time trabalha pra dentro. Conhecimento não vira processo e a relação com outras áreas depende de pessoa, não de estrutura — se alguém sai, sai com a operação junto.',
+  ok:'O time circula por fora e transforma o que aprende em processo da empresa.'}
+];
+
+const Q=[
+ {id:1,b:'p',t:'Quando a pressão por resultado aumenta, ele abre espaço pra entender o que está travando o time — em vez de só apertar mais.',type:'s'},
+ {id:2,b:'p',t:'Quando um bom resultado vem com desgaste, ele trata abertamente o que estressou o time no caminho.',type:'s'},
+ {id:3,b:'p',t:'Quando eu chego travado numa priorização, ele me ajuda a chegar na minha própria resposta — em vez de só entregar a resposta pronta.',type:'s'},
+ {id:4,b:'p',t:'Nas reuniões de resultado, sobra tempo pra discutir melhoria e estratégia — não só revisar indicadores e apagar incêndio.',type:'s'},
+ {id:5,b:'p',t:'Quando ele não tem a resposta, ele admite e diz o que já dá pra saber — em vez de forçar uma certeza ou deixar no vácuo.',type:'s'},
+ {id:6,b:'p',t:'Eu conseguiria explicar em uma frase o que essa empresa valoriza — e essa frase vem do que ele fala e faz.',type:'s'},
+ {id:7,b:'p',t:'Minha agenda tem espaço protegido pra trabalho de foco — não é só reunião e interrupção.',type:'s'},
+ {id:8,b:'p',t:'Pedidos "rápidos" fora do horário são raros, e quando acontecem não existe expectativa de resposta imediata.',type:'s'},
+ {id:9,b:'p',t:'Quando muda o rumo, eu entendo o porquê e sei qual passou a ser a prioridade real.',type:'s'},
+ {id:10,b:'p',t:'Nossos processos me dão segurança pra trabalhar e, ao mesmo tempo, podem ser mudados quando faz sentido.',type:'s'},
+ {id:11,b:'p',t:'Ele me expõe a outras áreas, clientes e parceiros — não me mantém preso só dentro do time.',type:'s'},
+ {id:12,b:'p',t:'O conhecimento que eu construo vira processo e fica pra empresa — não fica só na minha cabeça.',type:'s'},
+ {id:13,b:'g',t:'Eu sei exatamente o que ele espera de mim e como meu trabalho é avaliado.',type:'s'},
+ {id:14,b:'g',t:'Eu recebo feedback dele com frequência suficiente pra corrigir rota antes de virar problema.',type:'s'},
+ {id:15,b:'g',t:'Quando eu erro, a conversa é sobre o erro e a solução — não sobre mim como pessoa.',type:'s'},
+ {id:16,b:'g',t:'Ele reconhece o que dá certo, e não só aponta o que falta.',type:'s'},
+ {id:17,b:'g',t:'Eu me sinto seguro pra discordar dele, inclusive na frente de outras pessoas.',type:'s'},
+ {id:18,b:'a',t:'O que eu deveria parar de fazer?',type:'t',hint:'Se conseguir, cite uma situação concreta.'},
+ {id:19,b:'a',t:'O que eu deveria começar a fazer?',type:'t'},
+ {id:20,b:'a',t:'O que funciona hoje e eu não deveria perder?',type:'t'},
+ {id:21,b:'a',t:'Qual assunto trava o time hoje e ninguém fala abertamente?',type:'t',hint:'Sobre processo, sobre pessoa, sobre a empresa ou sobre mim.'},
+ {id:22,b:'f',t:'De 0 a 10, quanto você recomendaria trabalhar comigo pra um profissional que você respeita?',type:'n'},
+ {id:23,b:'f',t:'O que faltou pra essa nota ser 10?',type:'t'}
+];
+const ESC=[[1,'Nunca'],[2,'Raramente'],[3,'Às vezes'],[4,'Quase sempre'],[5,'Sempre']];
+
+/* AUTOAVALIAÇÃO — troque pelos seus próprios valores 1..5 (ou deixe null pra esconder a linha) */
+const AUTO=[4.5,4.0,3.0,3.5,4.0,4.5];
+
+const DEMO=[
+{1:4,2:3,3:4,4:3,5:4,6:4,7:2,8:2,9:4,10:3,11:4,12:3,13:4,14:3,15:5,16:3,17:3,
+ 18:'Responder demanda nova às 21h. Mesmo escrito "vê amanhã", a gente já entra em alerta.',
+ 19:'Fechar a semana com a prioridade número um escrita. Hoje a gente descobre a prioridade na quarta.',
+ 20:'Você defende o time pra fora. Isso conta muito.',
+ 21:'A carga do fiscal em fechamento não é dividida com ninguém e todo mundo finge que é normal.',22:8,23:'Previsibilidade de agenda.'},
+{1:5,2:4,3:5,4:3,5:5,6:4,7:2,8:1,9:3,10:3,11:5,12:3,13:3,14:2,15:4,16:2,17:2,
+ 18:'Mudar prioridade sem avisar quem já tinha começado a outra coisa.',
+ 19:'Feedback individual com data marcada. Faz uns cinco meses que não tenho um.',
+ 20:'A clareza quando explica o porquê de um número. Ninguém aqui explica isso tão bem.',
+ 21:'Tem gente carregando bem mais que outras e todo mundo sabe quem é.',22:7,23:'Constância no acompanhamento individual.'},
+{1:4,2:4,3:3,4:4,5:4,6:5,7:3,8:2,9:4,10:4,11:3,12:4,13:4,14:3,15:5,16:4,17:4,
+ 18:'Entrar no detalhe da execução depois de já ter delegado. Às vezes trava mais do que ajuda.',
+ 19:'',20:'Rapidez pra destravar decisão. Nunca fico esperando aprovação.',
+ 21:'Sistema. Perdemos muita hora com retrabalho de coisa que dava pra automatizar.',22:9,23:'Excesso de coisa ao mesmo tempo.'},
+{1:3,2:2,3:4,4:2,5:4,6:3,7:1,8:1,9:2,10:2,11:4,12:2,13:3,14:2,15:4,16:2,17:2,
+ 18:'Aceitar toda demanda que vem de fora sem negociar prazo com quem vai executar.',
+ 19:'Dizer não pras outras áreas de vez em quando.',20:'Escuta quando a gente chega com problema.',
+ 21:'A gente virou o "resolve tudo" da empresa e ninguém revisou o que isso custa.',22:6,23:'Proteger o time da demanda infinita.'},
+{1:5,2:4,3:5,4:4,5:5,6:5,7:3,8:3,9:4,10:4,11:5,12:4,13:4,14:4,15:5,16:4,17:4,
+ 18:'',19:'Compartilhar mais o cenário da empresa. A gente decide melhor sabendo o contexto.',
+ 20:'A postura de não jogar culpa quando dá errado.',21:'',22:9,23:'Tempo pra desenvolvimento. O operacional come tudo.'},
+{1:4,2:3,3:3,4:3,5:null,6:4,7:2,8:2,9:3,10:3,11:3,12:3,13:3,14:2,15:4,16:3,17:3,
+ 18:'Reunião que vira lista de cobrança de indicador. Sai todo mundo esgotado e sem decidir nada.',
+ 19:'Definir o que não é prioridade. Hoje tudo é prioridade.',
+ 20:'Transparência com número. Ninguém esconde resultado ruim aqui.',
+ 21:'Falta de gente. Viemos tapando buraco com hora extra há uns oito meses.',22:7,23:'Dimensionar melhor a equipe.'},
+{1:4,2:4,3:4,4:3,5:4,6:4,7:2,8:2,9:4,10:3,11:4,12:3,13:4,14:3,15:4,16:3,17:3,
+ 18:'Chamar pra conversa rápida que dura quarenta minutos e desmonta o dia.',
+ 19:'',20:'Confiança. Você delega de verdade.',21:'',22:8,23:'A agenda dele, que respinga na nossa.'},
+{1:3,2:3,3:4,4:2,5:3,6:3,7:1,8:1,9:3,10:2,11:3,12:2,13:2,14:1,15:3,16:2,17:1,
+ 18:'Decidir junto com uma pessoa e comunicar pro resto como se já estivesse fechado.',
+ 19:'Perguntar antes de concluir. Às vezes a conclusão vem antes da pergunta.',
+ 20:'É rápido. Quando precisa, resolve.',
+ 21:'Tem decisão que já vem pronta e a reunião é só pra homologar. Todo mundo percebe.',22:5,23:'Espaço real pra discordar sem parecer reclamação.'}
+];
+
+let R=DEMO.map(x=>({...x,_d:1}));
+let view='cover',idx=0,cur={},enviado=false,carregando=false;
+const app=document.getElementById('app');
+const cab=(right='')=>`<div class="goldline"></div><div class="top"><div class="mark">PAIOL <span>CSC</span></div><div class="count">${right}</div></div>`;
+const foot=(l='Pesquisa anônima')=>`<div class="foot"><span>${l}</span><button onclick="painel()">painel de resultados</button></div>`;
+
+function render(){
+ if(carregando){app.innerHTML=cab()+`<main><div class="done"><h2>Carregando respostas…</h2><p>Buscando os dados da planilha.</p></div></main>`+foot();return;}
+ if(view==='cover')return cover();
+ if(view==='q')return pergunta();
+ if(view==='done')return fim();
+ if(view==='panel')return painelView();
+}
+
+function cover(){
+ app.innerHTML=cab()+`<main><div class="cover">
+ <div class="eyebrow">CSC · Paiol Comercial Agrícola</div>
+ <h1>Hora de <b>avaliar</b>.</h1>
+ <p>Participei de um diagnóstico de liderança e respondi tudo sozinho. Serve pouco — quem convive com o dia a dia são vocês.</p>
+ <p>Então virei as perguntas. Agora é a sua vez de responder.</p>
+ <div class="meta">
+  <span><b>Anônima.</b> Não coleta e-mail, área, cargo nem tempo de casa.</span>
+  <span><b>23 perguntas</b>, cerca de 8 minutos. Pode responder no expediente.</span>
+  <span><b>Devolutiva em 15 dias</b>, com o resultado inteiro e dois compromissos meus.</span>
+ </div>
+ <div class="nav"><button class="go" onclick="start()">Começar</button></div>
+ </div></main>`+foot();
+}
+
+function pergunta(){
+ const q=Q[idx],pct=(idx/Q.length)*100;
+ let campo='';
+ if(q.type==='s')campo=`<div class="opts">`+ESC.map(([v,l])=>
+  `<button class="opt ${cur[q.id]===v?'sel':''}" onclick="mark(${q.id},${v})"><em>${v}</em>${l}</button>`).join('')+
+  `<button class="opt na ${cur[q.id]===null?'sel':''}" onclick="mark(${q.id},null)"><em>—</em>Não tenho como avaliar</button></div>`;
+ if(q.type==='t')campo=`<textarea placeholder="Escreva aqui" oninput="cur[${q.id}]=this.value">${cur[q.id]||''}</textarea>`;
+ if(q.type==='n')campo=`<div class="nps">`+Array.from({length:11},(_,n)=>
+  `<button class="${cur[q.id]===n?'sel':''}" onclick="mark(${q.id},${n})">${n}</button>`).join('')+
+  `</div><div class="legend"><span>de jeito nenhum</span><span>com certeza</span></div>`;
+ const ok=q.type==='t'?true:cur[q.id]!==undefined;
+ app.innerHTML=cab(`${idx+1}/${Q.length}`)+
+ `<div class="rule"><div><i style="width:${pct}%"></i></div></div>
+ <main><div class="q">
+  <div class="n">${q.b==='p'?'Dia a dia':q.b==='g'?'Gestão direta':q.b==='a'?'Aberto':'Fechamento'}</div>
+  <h2>${q.t}</h2>${q.hint?`<div class="hint">${q.hint}</div>`:''}${campo}
+  <div class="nav">
+   <button class="go" onclick="next()" ${ok?'':'disabled'}>${idx===Q.length-1?'Enviar':'Continuar'}</button>
+   ${idx>0?`<button class="back" onclick="prev()">Voltar</button>`:''}
+   ${q.type==='t'?`<button class="skip" onclick="next()">pular</button>`:''}
+  </div></div></main>`+foot();
+}
+
+function fim(){
+ app.innerHTML=cab()+`<main><div class="done">
+ <h2>Recebido.</h2>
+ <p>Sua resposta entrou no consolidado sem nenhuma marca de identificação.</p>
+ <p>A devolutiva acontece em até 15 dias, com o time todo na sala.</p>
+ <div class="nav"><button class="go" onclick="painel()">Ver painel</button></div>
+ </div></main>`+foot();
+}
+
+function start(){view='q';idx=0;cur={};render();}
+function mark(id,v){cur[id]=v;render();if(Q[idx].type==='s')setTimeout(next,150);}
+function prev(){if(idx>0){idx--;render();scrollTo(0,0);}}
+function next(){
+ if(idx<Q.length-1){idx++;render();scrollTo(0,0);return;}
+ if(enviado)return;
+ enviado=true;
+ R.push({...cur,_d:0});
+ enviar(cur);
+ view='done';render();scrollTo(0,0);
+}
+function enviar(dados){
+ try{
+  fetch(ENVIAR_URL,{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify(dados)}).catch(function(){});
+ }catch(e){}
+}
+function painel(){
+ const k=new URLSearchParams(location.search).get('admin');
+ view='panel';
+ if(k){
+  carregando=true;render();scrollTo(0,0);
+  fetch(DADOS_URL+'?k='+encodeURIComponent(k))
+   .then(r=>r.json())
+   .then(d=>{if(d&&d.rows&&d.rows.length)R=d.rows.map(x=>({...x,_d:0}));carregando=false;render();})
+   .catch(()=>{carregando=false;render();});
+  return;
+ }
+ render();scrollTo(0,0);
+}
+function limpar(){R=R.filter(r=>!r._d);render();}
+function reset(){view='cover';idx=0;cur={};enviado=false;render();scrollTo(0,0);}
+
+function st(id){
+ const v=R.map(r=>r[id]).filter(x=>typeof x==='number');
+ const na=R.filter(r=>r[id]===null).length;
+ if(!v.length)return null;
+ const m=v.reduce((a,b)=>a+b,0)/v.length;
+ const dp=Math.sqrt(v.reduce((a,b)=>a+(b-m)**2,0)/v.length);
+ return {m,dp,n:v.length,na,d:[1,2,3,4,5].map(k=>v.filter(x=>x===k).length)};
+}
+function mediaPara(p){
+ const vs=p.itens.map(i=>st(i)).filter(Boolean).map(s=>s.m);
+ return vs.length?vs.reduce((a,b)=>a+b,0)/vs.length:0;
+}
+
+function radar(vals,auto){
+ const cx=160,cy=150,Rd=98,N=6;
+ const ang=i=>(-90+i*60)*Math.PI/180;
+ const pt=(i,r)=>[cx+Math.cos(ang(i))*r, cy+Math.sin(ang(i))*r];
+ const poly=(arr,f)=>arr.map((v,i)=>pt(i,((Math.max(1,v)-1)/4)*Rd*f||0).join(',')).join(' ');
+ let malha='';
+ for(let k=1;k<=4;k++){
+  const r=Rd*k/4;
+  malha+=`<polygon points="${Array.from({length:N},(_,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="#E4E4E1" stroke-width="1"/>`;
+ }
+ let eixos='',labels='';
+ for(let i=0;i<N;i++){
+  const [x,y]=pt(i,Rd);
+  eixos+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E4E4E1" stroke-width="1"/>`;
+  const [lx,ly]=pt(i,Rd+22);
+  labels+=`<text x="${lx}" y="${ly+4}" text-anchor="middle" font-size="12" fill="#96958F" font-family="Ubuntu,sans-serif">${PARA[i].c}</text>`;
+ }
+ const pTime=poly(vals,1);
+ const pAuto=auto?poly(auto,1):null;
+ const dots=vals.map((v,i)=>{const[x,y]=pt(i,((Math.max(1,v)-1)/4)*Rd);return `<circle cx="${x}" cy="${y}" r="3.5" fill="#046023"/>`}).join('');
+ return `<svg class="radar" viewBox="0 0 320 300" xmlns="http://www.w3.org/2000/svg">
+  ${malha}${eixos}
+  ${pAuto?`<polygon points="${pAuto}" fill="none" stroke="#ECC23C" stroke-width="1.5" stroke-dasharray="4 3"/>`:''}
+  <polygon points="${pTime}" fill="rgba(4,96,35,.13)" stroke="#046023" stroke-width="2"/>
+  ${dots}${labels}
+ </svg>`;
+}
+
+function painelView(){
+ const ids=Q.filter(q=>q.type==='s').map(q=>q.id);
+ const D=ids.map(id=>({id,q:Q.find(x=>x.id===id),s:st(id)})).filter(x=>x.s);
+ const ord=[...D].sort((a,b)=>a.s.m-b.s.m);
+ const geral=(D.reduce((a,x)=>a+x.s.m,0)/D.length).toFixed(2);
+ const nps=R.map(r=>r[22]).filter(x=>typeof x==='number').sort((a,b)=>a-b);
+ const npsM=nps.length?(nps.reduce((a,b)=>a+b,0)/nps.length).toFixed(1):'—';
+
+ const pm=PARA.map(p=>({p,m:mediaPara(p)}));
+ const pOrd=[...pm].sort((a,b)=>a.m-b.m);
+ const pior=pOrd[0], melhor=pOrd[pOrd.length-1];
+
+ const flags=[];
+ const i17=st(17);
+ if(i17&&i17.m<3.5)flags.push(['red','Item 17 em '+i17.m.toFixed(1),'Segurança pra discordar abaixo do piso. Enquanto esse item estiver baixo, as notas altas dos outros itens não são confiáveis — parte do time está respondendo o que acha que você quer ler.']);
+ const disp=D.filter(x=>x.s.dp>1.15);
+ if(disp.length)flags.push(['','Itens '+disp.map(x=>x.id).join(', ')+' com respostas espalhadas','Média parecida escondendo experiências opostas. Parte do time vive uma gestão, outra parte vive outra — vale entender se você trata pessoas de forma desigual sem perceber.']);
+ const nas=D.filter(x=>x.s.na>=R.length*0.25);
+ if(nas.length)flags.push(['','Itens '+nas.map(x=>x.id).join(', ')+' com muitos "não sei avaliar"','Raramente é neutralidade. Normalmente é comportamento que não acontece o suficiente pra ser observado.']);
+
+ const tons=['#A83A2C','#C0714A','#C9A94A','#6F8F76','#046023'];
+ const row=x=>`<div class="row">
+  <div class="row-top"><span class="row-i">${x.id}</span><span class="row-t">${x.q.t}</span>
+  <span class="row-v ${x.s.m<3.2?'low':''}">${x.s.m.toFixed(1)}</span></div>
+  <div class="dist">${x.s.d.map((c,i)=>c?`<i style="width:${(c/x.s.n)*100}%;background:${tons[i]}"></i>`:'').join('')}</div>
+  <div class="row-m"><span>n ${x.s.n}</span><span>dispersão ${x.s.dp.toFixed(2)}</span>${x.s.na?`<span>${x.s.na} não avaliaram</span>`:''}</div>
+ </div>`;
+
+ const linhaP=o=>`<div class="pd">
+  <span class="cod">${o.p.c}</span>
+  <span class="nm">${o.p.n}<small>${o.p.f}</small></span>
+  <span class="bar"><i class="${o.m<3.2?'low':''}" style="width:${((o.m-1)/4)*100}%"></i></span>
+  <span class="v ${o.m<3.2?'low':''}">${o.m.toFixed(1)}</span></div>`;
+
+ const abertas=[18,19,20,21,23].map(id=>{
+  const t=R.map(r=>r[id]).filter(x=>x&&x.trim());
+  if(!t.length)return '';
+  return `<h4 class="open">${Q.find(q=>q.id===id).t}</h4>`+
+   t.sort(()=>Math.random()-.5).map(x=>`<div class="quote">${x}</div>`).join('');
+ }).join('');
+
+ const gest=D.filter(x=>x.q.b==='g').sort((a,b)=>a.s.m-b.s.m);
+
+ app.innerHTML=cab()+`<main><div class="panel">
+ <h2>Resultado consolidado</h2>
+ <div class="sub">Centro de Serviços Compartilhados · Paiol Comercial Agrícola</div>
+ <div class="nums">
+  <div><b>${R.length}</b><span>respostas</span></div>
+  <div><b>${geral}</b><span>média geral</span></div>
+  <div><b>${npsM}</b><span>nota 0–10</span></div>
+ </div>
+ <div class="note">Modo teste. ${R.filter(r=>r._d).length} respostas de demonstração${R.some(r=>!r._d)?' + '+R.filter(r=>!r._d).length+' sua':''}. Nada é gravado.<br>
+  <span style="display:inline-block;margin-top:9px">
+   <button onclick="limpar()">remover demo</button><button onclick="reset()">responder de novo</button></span>
+ </div>
+
+ <h3 class="sec">Os 6 paradoxos</h3>
+ ${radar(pm.map(x=>x.m), AUTO)}
+ <div class="radar-key">
+  <span><i style="background:#046023"></i>como o time vê</span>
+  ${AUTO?`<span><i style="background:#ECC23C"></i>como você se vê</span>`:''}
+ </div>
+
+ <div class="hero">
+  <div class="lbl">Paradoxo prioritário</div>
+  <h4>${pior.p.n}</h4>
+  <div class="frase">"${pior.p.f}"</div>
+  <p>${pior.p.diag}</p>
+  <div class="score">${pior.p.c} · ${pior.m.toFixed(1)} de 5 · itens ${pior.p.itens.join(' e ')}</div>
+ </div>
+
+ <h3 class="sec">Os seis, do mais baixo ao mais alto</h3>
+ ${pOrd.map(linhaP).join('')}
+ <div class="flag" style="border-left-color:#046023;background:#eaf2ec;margin-top:16px">
+  <b>${melhor.p.n} — ${melhor.m.toFixed(1)}</b>${melhor.p.ok}
+ </div>
+
+ ${flags.length?`<h3 class="sec">Antes de olhar as médias</h3>`+flags.map(f=>`<div class="flag ${f[0]}"><b>${f[1]}</b>${f[2]}</div>`).join(''):''}
+
+ <h3 class="sec">Gestão direta</h3>${gest.map(row).join('')}
+ <h3 class="sec">Todos os itens</h3>${ord.map(row).join('')}
+ <h3 class="sec">Respostas abertas</h3>${abertas}
+ <h3 class="sec">Nota 0–10</h3>
+ <div class="row"><div class="row-top"><span class="row-i"></span>
+  <span class="row-t">${nps.join(' · ')}</span>
+  <span class="row-v ${npsM<7?'low':''}">${npsM}</span></div>
+  <div class="row-m"><span>${nps.filter(v=>v<=6).length} de ${nps.length} deram 6 ou menos</span></div></div>
+ </div></main>`+foot('Modo teste');
+}
+render();
+</script>
+</body>
+</html>

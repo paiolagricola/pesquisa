@@ -1,0 +1,9 @@
+# Bloqueia acesso direto ao arquivo de respostas pela web.
+# Sem isso, qualquer um que adivinhe /dados/respostas.json lê tudo.
+<IfModule mod_authz_core.c>
+  Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+  Order allow,deny
+  Deny from all
+</IfModule>
